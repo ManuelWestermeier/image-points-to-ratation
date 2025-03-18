@@ -192,18 +192,39 @@ function processFrame() {
       // Highlight the regionized color line pattern.
       drawRegionizedLine(dots.red, dots.pink, dots.green);
 
+      drawCircle(dots.pink.x, dots.pink.y, 8, "rgb(180, 30, 100)");
+      drawLine(dots.green, dots.red, "black", 5);
       // Use pink as the center point.
-      const middle = dots.pink;
-      drawCircle(middle.x, middle.y, 8, "rgb(180, 30, 100)");
+      const middleFront = dots.pink;
+      middleFront.x += (dots.red.x - dots.pink.x) / 2;
+      middleFront.y += (dots.red.y - dots.pink.y) / 2;
+
+      drawCircle(middleFront.x, middleFront.y, 10, "blue");
 
       // If the mouse position is available, draw a blue marker and a blue line from the center to the mouse.
       if (mousePos.x !== null && mousePos.y !== null) {
         drawCircle(mousePos.x, mousePos.y, 5, "blue");
-        drawLine(middle, mousePos, "blue");
-        const rotation = computeRotation(middle, dots.red, mousePos);
-        coordsDisplay.textContent = `Middle: (${middle.x.toFixed(
-          2
-        )}, ${middle.y.toFixed(2)})`;
+        drawLine(middleFront, mousePos, "blue");
+        const rotation = computeRotation(middleFront, dots.red, mousePos);
+
+        // coordsDisplay.textContent = `MiddleFront: (${middleFront.x.toFixed(
+        //   2
+        // )}, ${middleFront.y.toFixed(2)})`;
+
+        if (Math.abs(rotation) < 90) {
+          coordsDisplay.textContent = `The boat have to rotate ${
+            rotation > 0 ? "right" : "left"
+          } with factor ${Math.round((Math.abs(rotation) / 180) * 100)}%`;
+        } else {
+          coordsDisplay.textContent = `The boat have to turn ${
+            rotation > 0 ? "right" : "left"
+          } and then rotate ${
+            rotation > 0 ? "right" : "left"
+          } with factor ${Math.round(
+            ((Math.abs(rotation) - 90) / 180) * 100
+          )}%`;
+        }
+
         angleDisplay.textContent = `Rotation to point toward mouse: ${rotation.toFixed(
           2
         )}°`;
@@ -285,7 +306,6 @@ canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
   mousePos.x = (e.offsetX / rect.width) * canvas.width;
   mousePos.y = (e.offsetY / rect.height) * canvas.height;
-  console.log(e);
 });
 
 // ---------- Button Event Listeners ----------
