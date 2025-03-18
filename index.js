@@ -187,7 +187,8 @@ function processFrame() {
         angleDisplay.textContent = "";
     }
 
-    if (useVideo) {
+    if (useVideo || true) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         requestAnimationFrame(processFrame);
     }
 }
@@ -235,6 +236,19 @@ fileInput.addEventListener('change', (e) => {
     }
 });
 
+
+function start() {
+    const img = new Image();
+    img.onload = () => {
+        useVideo = false;
+        stopVideo();
+        resizeCanvas(img.width, img.height);
+        ctx.drawImage(img, 0, 0);
+        processFrame();
+    };
+    img.src = "./strand-bild.jpeg";
+}
+
 // ---------- Mouse Handling ----------
 
 // Update the mouse position relative to the canvas.
@@ -247,7 +261,6 @@ canvas.addEventListener('mousemove', (e) => {
 // ---------- Button Event Listeners ----------
 
 startVideoButton.addEventListener('click', startVideo);
-stopVideoButton.addEventListener('click', stopVideo);
+stopVideoButton.addEventListener('click', () => stopVideo() + start());
 
-// Auto-start video on load
-window.addEventListener('load', startVideo);
+start();
