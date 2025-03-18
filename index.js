@@ -69,13 +69,15 @@ function clusterColor(imageData, testFunc) {
 
 // Color test functions using thresholds.
 function isRed(r, g, b) {
-  return r > 180 && g < 80 && b < 80;
+  return r > 150 && g < r * 0.5 && b < r * 0.5;
 }
+
 function isPink(r, g, b) {
-  return r > 180 && b > 100 && g < 30;
+  return r > 140 && b > 80 && g < r * 0.5;
 }
+
 function isGreen(r, g, b) {
-  return g > 180 && r < 80 && b < 80;
+  return g > 130 && r < g * 0.5 && b < g * 0.5;
 }
 
 // Compute the perpendicular distance from point p to the line through p1 and p2.
