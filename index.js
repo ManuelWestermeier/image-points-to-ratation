@@ -283,8 +283,9 @@ function start() {
 // Update the mouse position relative to the canvas.
 canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
-  mousePos.x = e.clientX - rect.left;
-  mousePos.y = e.clientY - rect.top;
+  mousePos.x = (e.offsetX / rect.width) * canvas.width;
+  mousePos.y = (e.offsetY / rect.height) * canvas.height;
+  console.log(e);
 });
 
 // ---------- Button Event Listeners ----------
