@@ -12,6 +12,7 @@ const statusDisplay = document.getElementById("status");
 let videoStream = null;
 let useVideo = false;
 let mousePos = { x: null, y: null };
+let selectedImage;
 
 // Thresholds for clustering and collinearity
 const CLUSTER_RADIUS = 100; // pixels: group nearby detections into one cluster
@@ -175,6 +176,8 @@ function detectDots(imageData) {
 function processFrame() {
   if (useVideo) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  } else if (selectedImage) {
+    ctx.drawImage(selectedImage, 0, 0);
   }
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const dots = detectDots(imageData);
@@ -215,10 +218,7 @@ function processFrame() {
     angleDisplay.textContent = "";
   }
 
-  // Continue processing frames if video is active.
-  if (useVideo) {
-    requestAnimationFrame(processFrame);
-  }
+  requestAnimationFrame(processFrame);
 }
 
 // ---------- Video and Image Handling ----------
@@ -254,6 +254,7 @@ fileInput.addEventListener("change", (e) => {
   if (file) {
     const img = new Image();
     img.onload = () => {
+      selectedImage = img;
       useVideo = false;
       stopVideo();
       resizeCanvas(img.width, img.height);
@@ -267,6 +268,7 @@ fileInput.addEventListener("change", (e) => {
 function start() {
   const img = new Image();
   img.onload = () => {
+    selectedImage = img;
     useVideo = false;
     stopVideo();
     resizeCanvas(img.width, img.height);
