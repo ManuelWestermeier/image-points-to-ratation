@@ -296,7 +296,7 @@ function start() {
     ctx.drawImage(img, 0, 0);
     processFrame();
   };
-  img.src = "./strand-bild.jpeg";
+  img.src = "./test-images/working.jpeg";
 }
 
 // ---------- Mouse Handling ----------
