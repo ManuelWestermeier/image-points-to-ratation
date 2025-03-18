@@ -15,7 +15,7 @@ let mousePos = { x: null, y: null };
 
 // Thresholds for clustering and collinearity
 const CLUSTER_RADIUS = 100; // pixels: group nearby detections into one cluster
-const COLLINEARITY_THRESHOLD = 50; // pixels tolerance for a point to be considered "on the line"
+const COLLINEARITY_THRESHOLD = 50; // tolerance for a point to be considered "on the line"
 
 // ---------- Helper Functions ----------
 
@@ -24,7 +24,7 @@ function distance(p1, p2) {
   return Math.hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-// Given a list of clusters, try to add the point (x, y) to an existing cluster (if within threshold)
+// Given a list of clusters, add the point (x, y) to an existing cluster (if within threshold)
 // Otherwise, create a new cluster.
 function addToClusters(clusters, x, y, threshold) {
   for (let cluster of clusters) {
@@ -77,7 +77,7 @@ function isGreen(r, g, b) {
   return g > 180 && r < 80 && b < 80;
 }
 
-// Given three points p1, mid, p2, compute the perpendicular distance from mid to the line p1-p2.
+// Compute the perpendicular distance from point p to the line through p1 and p2.
 function pointLineDistance(p, p1, p2) {
   const num = Math.abs(
     (p2.y - p1.y) * p.x - (p2.x - p1.x) * p.y + p2.x * p1.y - p2.y * p1.x
@@ -86,14 +86,12 @@ function pointLineDistance(p, p1, p2) {
   return den === 0 ? 0 : num / den;
 }
 
-// Check if the three points are collinear (i.e. the "middle" is near the line joining the other two).
+// Check if p1, mid, and p2 are collinear (i.e. mid is close to the line from p1 to p2).
 function isCollinear(p1, mid, p2, threshold) {
   return pointLineDistance(mid, p1, p2) < threshold;
 }
 
-// Check if the points are in the right order. We assume that pink is meant to be in the middle.
-// One way is to check that pink lies between red and green: the sum of distances (red to pink and pink to green)
-// should be nearly equal to the distance from red to green.
+// Check if the points are in the expected order (pink should lie between red and green).
 function checkOrder(red, pink, green, tolerance) {
   const dRP = distance(red, pink);
   const dPG = distance(pink, green);
@@ -101,29 +99,19 @@ function checkOrder(red, pink, green, tolerance) {
   return Math.abs(dRP + dPG - dRG) < tolerance;
 }
 
-// Given the current orientation (from the middle to red) and a target (mouse position),
-// compute the rotation angle (in degrees) needed so that the dots "point" toward the target.
+// Compute the rotation (in degrees) required so that the line from the pink center toward red rotates to point at the mouse.
 function computeRotation(middle, red, mouse) {
   const currentAngle = Math.atan2(red.y - middle.y, red.x - middle.x);
   const targetAngle = Math.atan2(mouse.y - middle.y, mouse.x - middle.x);
   let rotation = (targetAngle - currentAngle) * (180 / Math.PI);
-  // Normalize angle to (-180, 180]
   if (rotation > 180) rotation -= 360;
   if (rotation <= -180) rotation += 360;
   return rotation;
 }
 
-// ---------- Main Processing Functions ----------
+// ---------- Drawing Functions ----------
 
-// Detect the three colored dots from the image data.
-function detectDots(imageData) {
-  const redPoint = clusterColor(imageData, isRed);
-  const pinkPoint = clusterColor(imageData, isPink);
-  const greenPoint = clusterColor(imageData, isGreen);
-  return { red: redPoint, pink: pinkPoint, green: greenPoint };
-}
-
-// Draw circles for each detection.
+// Draw circles for each detected dot.
 function drawDetections(dots) {
   if (dots.red) drawCircle(dots.red.x, dots.red.y, 10, "red");
   if (dots.pink) drawCircle(dots.pink.x, dots.pink.y, 10, "pink");
@@ -141,14 +129,30 @@ function drawCircle(x, y, radius, color) {
   ctx.stroke();
 }
 
-// Draw a line between two points.
-function drawLine(p1, p2, color) {
+// Draw a line between two points. Optionally, you can set the line width.
+function drawLine(p1, p2, color, width = 3) {
   ctx.beginPath();
   ctx.moveTo(p1.x, p1.y);
   ctx.lineTo(p2.x, p2.y);
   ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = width;
   ctx.stroke();
+}
+
+// Draw a regionized line connecting red, pink, and green.
+// This function draws two segments with a gradient: red→pink and pink→green.
+function drawRegionizedLine(red, pink, green) {
+  // Create gradient for red-to-pink segment
+  let grad1 = ctx.createLinearGradient(red.x, red.y, pink.x, pink.y);
+  grad1.addColorStop(0, "red");
+  grad1.addColorStop(1, "pink");
+  drawLine(red, pink, grad1, 4);
+
+  // Create gradient for pink-to-green segment
+  let grad2 = ctx.createLinearGradient(pink.x, pink.y, green.x, green.y);
+  grad2.addColorStop(0, "pink");
+  grad2.addColorStop(1, "green");
+  drawLine(pink, green, grad2, 4);
 }
 
 // Resize the canvas.
@@ -157,7 +161,17 @@ function resizeCanvas(width, height) {
   canvas.height = height;
 }
 
-// Process each frame from video (or after image load)
+// ---------- Main Processing Functions ----------
+
+// Detect the three colored dots from the image data.
+function detectDots(imageData) {
+  const redPoint = clusterColor(imageData, isRed);
+  const pinkPoint = clusterColor(imageData, isPink);
+  const greenPoint = clusterColor(imageData, isGreen);
+  return { red: redPoint, pink: pinkPoint, green: greenPoint };
+}
+
+// Process each frame from the video (or after an image load).
 function processFrame() {
   if (useVideo) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -167,16 +181,19 @@ function processFrame() {
   drawDetections(dots);
 
   if (dots.red && dots.pink && dots.green) {
-    // Check collinearity (pink should be on the line from red to green)
+    // Verify collinearity and order (pink should lie between red and green)
     if (
       isCollinear(dots.red, dots.pink, dots.green, COLLINEARITY_THRESHOLD) &&
       checkOrder(dots.red, dots.pink, dots.green, COLLINEARITY_THRESHOLD)
     ) {
-      // Use pink as the middle point
-      const middle = dots.pink;
-      drawCircle(middle.x, middle.y, 8, "yellow");
+      // Highlight the regionized color line pattern.
+      drawRegionizedLine(dots.red, dots.pink, dots.green);
 
-      // Draw a marker at the mouse position (if available)
+      // Use pink as the center point.
+      const middle = dots.pink;
+      drawCircle(middle.x, middle.y, 8, "rgb(180, 30, 100)");
+
+      // If the mouse position is available, draw a blue marker and a blue line from the center to the mouse.
       if (mousePos.x !== null && mousePos.y !== null) {
         drawCircle(mousePos.x, mousePos.y, 5, "blue");
         drawLine(middle, mousePos, "blue");
@@ -198,8 +215,8 @@ function processFrame() {
     angleDisplay.textContent = "";
   }
 
-  if (useVideo || true) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Continue processing frames if video is active.
+  if (useVideo) {
     requestAnimationFrame(processFrame);
   }
 }
@@ -271,6 +288,9 @@ canvas.addEventListener("mousemove", (e) => {
 // ---------- Button Event Listeners ----------
 
 startVideoButton.addEventListener("click", startVideo);
-stopVideoButton.addEventListener("click", () => stopVideo() + start());
+stopVideoButton.addEventListener("click", () => {
+  stopVideo();
+  start();
+});
 
 start();
