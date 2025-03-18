@@ -308,6 +308,15 @@ canvas.addEventListener("mousemove", (e) => {
   mousePos.y = (e.offsetY / rect.height) * canvas.height;
 });
 
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault(); // Prevent scrolling while touching the canvas
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0]; // Get first touch point
+
+  mousePos.x = ((touch.clientX - rect.left) / rect.width) * canvas.width;
+  mousePos.y = ((touch.clientY - rect.top) / rect.height) * canvas.height;
+});
+
 // ---------- Button Event Listeners ----------
 
 startVideoButton.addEventListener("click", startVideo);
