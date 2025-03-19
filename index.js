@@ -248,7 +248,11 @@ function processFrame() {
 
 async function startVideo() {
   try {
-    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoStream = await navigator.mediaDevices.getUserMedia({
+ video: { f
+acingMode: 'front'
+} 
+});
     video.srcObject = videoStream;
     useVideo = true;
     video.addEventListener("loadedmetadata", () => {
