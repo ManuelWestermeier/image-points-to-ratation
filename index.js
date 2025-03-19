@@ -249,8 +249,10 @@ function processFrame() {
 async function startVideo() {
   try {
     videoStream = await navigator.mediaDevices.getUserMedia({
- video: { f
-acingMode: 'front'
+ video: { 
+facingMode: {
+      exact: 'environment'
+    } 
 } 
 });
     video.srcObject = videoStream;
