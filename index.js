@@ -8,6 +8,7 @@ const stopVideoButton = document.getElementById("stopVideo");
 const coordsDisplay = document.getElementById("coords");
 const angleDisplay = document.getElementById("angle");
 const statusDisplay = document.getElementById("status");
+const intervallToleranceInput = document.getElementById("intervall-tolerance");
 
 let videoStream = null;
 let useVideo = false;
@@ -17,6 +18,7 @@ let selectedImage;
 // Thresholds for clustering and collinearity
 const CLUSTER_RADIUS = 100; // pixels: group nearby detections into one cluster
 const COLLINEARITY_THRESHOLD = 50; // tolerance for a point to be considered "on the line"
+const intervallTolerance = 0.8;
 
 // ---------- Helper Functions ----------
 
@@ -110,7 +112,12 @@ function checkEqualIntervals(red, pink, green) {
   const dPG = distance(pink, green);
   const dRG = distance(red, green);
 
-  return (dPG > dRP * 0.7 && dPG < dRP * 1.3) && (dRG > dRP * 1.4 && dRG < dRP * 2.6);
+  const tolerance = parseFloat(intervallToleranceInput.value) ?? intervallTolerance;
+
+  const min = 1 - tolerance;
+  const max = 1 + tolerance;
+
+  return (dPG > dRP * min && dPG < dRP * max) && (dRG > dRP * min * 2 && dRG < dRP * max * 2);
 }
 
 // Compute the rotation (in degrees) required so that the line from the pink center toward red rotates to point at the mouse.
@@ -259,7 +266,13 @@ async function startVideo() {
   try {
     videoStream = await navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: { exact: "environment" }
+        facingMode: { exact: "environment" },
+        width: {
+          max: 600,
+        },
+        height: {
+          max: 600,
+        }
       }
     });
     video.srcObject = videoStream;
