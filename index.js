@@ -10,6 +10,9 @@ const angleDisplay = document.getElementById("angle");
 const statusDisplay = document.getElementById("status");
 const intervallToleranceInput = document.getElementById("intervall-tolerance");
 
+intervallToleranceInput.onchange = e => localStorage.setItem("intervallToleranceInput", e.target.value)
+intervallToleranceInput.value = parseFloat(localStorage.getItem("intervallToleranceInput")) || 0.7
+
 let videoStream = null;
 let useVideo = false;
 let mousePos = { x: null, y: null };
@@ -268,10 +271,10 @@ async function startVideo() {
       video: {
         facingMode: { exact: "environment" },
         width: {
-          max: 600,
+          max: 1024,
         },
         height: {
-          max: 600,
+          max: 1024,
         }
       }
     });
