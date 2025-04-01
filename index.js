@@ -15,7 +15,7 @@ intervallToleranceInput.value = parseFloat(localStorage.getItem("intervallTolera
 
 let videoStream = null;
 let useVideo = false;
-let mousePos = { x: null, y: null };
+let mousePos = { x: 0, y: 0 };
 let selectedImage;
 
 // Thresholds for clustering and collinearity

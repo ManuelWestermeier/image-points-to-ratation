@@ -3,66 +3,34 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>3 Dot Line Detector</title>
   <script type="module" src="index.js" defer></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-
-    h1 {
-      color: #333;
-    }
-
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    video,
-    canvas {
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      max-width: 100%;
-      margin: 10px;
-    }
-
-    #controls {
-      margin: 10px;
-    }
-
-    #output {
-      margin: 10px;
-      background: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-  <h1>3 Dot Line Detector</h1>
-  <div id="container">
-    <!-- Video element for realtime camera feed -->
-    <video id="video" autoplay playsinline muted></video>
-    <!-- Canvas for drawing video/image and overlays -->
-    <canvas id="canvas"></canvas>
-    <div id="controls">
-      <input type="file" id="fileInput" accept="image/*" />
-      <button id="startVideo">Start Video</button>
-      <button id="stopVideo">Stop Video</button>
-      <p>
-        Tolerance:
-        <input type="range" id="intervall-tolerance" min="0" max="1" value="0.7" step="0.001">
-      </p>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center p-4 min-h-screen">
+  <h1 class="text-xl font-bold mb-4 text-blue-400">3 Dot Line Detector</h1>
+
+  <!-- Full-width canvas -->
+  <canvas id="canvas" class="border border-gray-600 rounded-lg w-screen mb-3"></canvas>
+
+  <div id="controls"
+    class="flex flex-col items-center bg-gray-800 shadow-lg rounded-xl p-4 w-full max-w-lg border border-gray-700 text-sm">
+    <input type="file" id="fileInput" accept="image/*"
+      class="px-3 py-1 border border-gray-600 rounded-lg bg-gray-700 text-gray-200 text-sm w-full" />
+    <div class="flex space-x-3 mt-3">
+      <button id="startVideo"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-lg text-sm">Start</button>
+      <button id="stopVideo" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-lg text-sm">Stop</button>
     </div>
-    <div id="output">
+    <div class="w-full mt-3">
+      <label for="intervall-tolerance" class="text-xs text-gray-300">Tolerance</label>
+      <input type="range" id="intervall-tolerance" min="0" max="1" value="0.7" step="0.001"
+        class="w-full accent-blue-500" />
+    </div>
+    <div id="output"
+      class="bg-gray-700 p-3 rounded-lg shadow-md w-full mt-3 border border-gray-600 text-xs text-gray-300">
       <p id="coords"></p>
       <p id="angle"></p>
       <p id="status"></p>
