@@ -300,7 +300,24 @@ function stopVideo() {
   statusDisplay.textContent = "Video stopped.";
 }
 
-function renderFile(url) {
+// When an image file is selected, stop video and process the image.
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const img = new Image();
+    img.onload = () => {
+      selectedImage = img;
+      useVideo = false;
+      stopVideo();
+      resizeCanvas(img.width, img.height);
+      ctx.drawImage(img, 0, 0);
+      processFrame();
+    };
+    img.src = URL.createObjectURL(file);
+  }
+});
+
+function start() {
   const img = new Image();
   img.onload = () => {
     selectedImage = img;
@@ -310,19 +327,7 @@ function renderFile(url) {
     ctx.drawImage(img, 0, 0);
     processFrame();
   };
-  img.src = url;
-}
-
-// When an image file is selected, stop video and process the image.
-fileInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    renderFile(URL.createObjectURL(file))
-  }
-});
-
-function start() {
-  renderFile("./test-images/working.jpeg");
+  img.src = "./test-images/working.jpeg";
 }
 
 // ---------- Mouse Handling ----------
