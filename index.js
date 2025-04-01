@@ -81,7 +81,7 @@ function isPink(r, g, b) {
 function isGreen(r, g, b) {
   const max = Math.max(r, g, b);
   return max >= 110 && g === max && r < g * 0.5 && b < g * 0.5;
-} 
+}
 
 // Compute the perpendicular distance from point p to the line through p1 and p2.
 function pointLineDistance(p, p1, p2) {
@@ -103,6 +103,14 @@ function checkOrder(red, pink, green, tolerance) {
   const dPG = distance(pink, green);
   const dRG = distance(red, green);
   return Math.abs(dRP + dPG - dRG) < tolerance;
+}
+
+function checkEqualIntervals(red, pink, green) {
+  const dRP = distance(red, pink);
+  const dPG = distance(pink, green);
+  const dRG = distance(red, green);
+
+  return dPG < dRP * 0.7 && dPG > dRP * 1.3 && dPG < dRP * 1.4 && dPG > dRP * 2.6;
 }
 
 // Compute the rotation (in degrees) required so that the line from the pink center toward red rotates to point at the mouse.
@@ -192,7 +200,8 @@ function processFrame() {
     // Verify collinearity and order (pink should lie between red and green)
     if (
       isCollinear(dots.red, dots.pink, dots.green, COLLINEARITY_THRESHOLD) &&
-      checkOrder(dots.red, dots.pink, dots.green, COLLINEARITY_THRESHOLD)
+      checkOrder(dots.red, dots.pink, dots.green, COLLINEARITY_THRESHOLD) &&
+      checkEqualIntervals(dots.red, dots.pink, dots.green)
     ) {
       // Highlight the regionized color line pattern.
       drawRegionizedLine(dots.red, dots.pink, dots.green);
@@ -217,17 +226,14 @@ function processFrame() {
         // )}, ${middleFront.y.toFixed(2)})`;
 
         if (Math.abs(rotation) < 90) {
-          coordsDisplay.textContent = `The boat have to rotate ${
-            rotation > 0 ? "right" : "left"
-          } with factor ${Math.round((Math.abs(rotation) / 180) * 100)}%`;
+          coordsDisplay.textContent = `The boat have to rotate ${rotation > 0 ? "right" : "left"
+            } with factor ${Math.round((Math.abs(rotation) / 180) * 100)}%`;
         } else {
-          coordsDisplay.textContent = `The boat have to turn ${
-            rotation > 0 ? "right" : "left"
-          } and then rotate ${
-            rotation > 0 ? "right" : "left"
-          } with factor ${Math.round(
-            ((Math.abs(rotation) - 90) / 180) * 100
-          )}%`;
+          coordsDisplay.textContent = `The boat have to turn ${rotation > 0 ? "right" : "left"
+            } and then rotate ${rotation > 0 ? "right" : "left"
+            } with factor ${Math.round(
+              ((Math.abs(rotation) - 90) / 180) * 100
+            )}%`;
         }
 
         angleDisplay.textContent = `Rotation to point toward mouse: ${rotation.toFixed(
