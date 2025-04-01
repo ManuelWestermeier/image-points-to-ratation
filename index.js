@@ -110,7 +110,7 @@ function checkEqualIntervals(red, pink, green) {
   const dPG = distance(pink, green);
   const dRG = distance(red, green);
 
-  return dPG < dRP * 0.7 && dPG > dRP * 1.3 && dRG < dRP * 1.4 && dRG > dRP * 2.6;
+  return (dPG > dRP * 0.7 && dPG < dRP * 1.3) && (dRG > dRP * 1.4 && dRG < dRP * 2.6);
 }
 
 // Compute the rotation (in degrees) required so that the line from the pink center toward red rotates to point at the mouse.
