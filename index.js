@@ -270,12 +270,6 @@ async function startVideo() {
     videoStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { exact: "environment" },
-        width: {
-          max: 1024,
-        },
-        height: {
-          max: 1024,
-        }
       }
     });
     video.srcObject = videoStream;
