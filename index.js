@@ -331,7 +331,7 @@ function start() {
     ctx.drawImage(img, 0, 0);
     processFrame();
   };
-  img.src = "./test-images/working.jpeg";
+  img.src = "https://manuelwestermeier.github.io/image-points-to-ratation/";
 }
 
 // ---------- Mouse Handling ----------
